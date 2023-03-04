@@ -1,4 +1,5 @@
 use mongodb::{options::ClientOptions, Client};
+use phishing_quiz::entities::user::User;
 
 #[tokio::main]
 async fn main() {
@@ -17,4 +18,18 @@ async fn main() {
     for db_name in client.list_database_names(None, None).await.unwrap() {
         println!("{}", db_name);
     }
+
+    let typed_collection = client.database("phishing_quiz").collection::<User>("users");
+
+    let user = User {
+        email: "joshua.lung@student.htldornbirn.at".to_string(),
+        phished: true,
+        form_result: Some(phishing_quiz::entities::user::FormResult {
+            phishing_likelihood: 1,
+            phished_before: false,
+        }),
+        ..Default::default()
+    };
+
+    typed_collection.insert_one(user, None).await.unwrap();
 }
